@@ -20,8 +20,8 @@ import java.util.Map;
  */
 class Warehouse {
     // Cache route and metas
-    static Map<String, Class<? extends IRouteGroup>> groupsIndex = new HashMap<>();
-    static Map<String, RouteMeta> routes = new HashMap<>();
+    static Map<String, Class<? extends IRouteGroup>> groupsIndex = new HashMap<>();//存放的是 group key和class对象的 映射
+    static Map<String, RouteMeta> routes = new HashMap<>(); //存放的是 路由和 routeMeta（目标的封装）的映射
 
     // Cache provider
     static Map<Class, IProvider> providers = new HashMap<>();
