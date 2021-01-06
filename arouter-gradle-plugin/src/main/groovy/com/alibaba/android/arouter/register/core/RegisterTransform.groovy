@@ -21,7 +21,7 @@ class RegisterTransform extends Transform {
 
     Project project
     static ArrayList<ScanSetting> registerList
-    static File fileContainsInitClass;
+    static File fileContainsInitClass; //记录 'com/alibaba/android/arouter/core/LogisticsCenter' 所在的jar包
 
     RegisterTransform(Project project) {
         this.project = project
@@ -112,6 +112,7 @@ class RegisterTransform extends Transform {
 
         Logger.i('Scan finish, current cost time ' + (System.currentTimeMillis() - startTime) + "ms")
 
+        //生成注册到吗到 'com/alibaba/android/arouter/core/LogisticsCenter' 文件中
         if (fileContainsInitClass) {
             registerList.each { ext ->
                 Logger.i('Insert register code to file ' + fileContainsInitClass.absolutePath)

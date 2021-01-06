@@ -10,6 +10,9 @@ import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
 /**
+ *
+ * 注入代码到 LogisticsCenter.class 中
+ *
  * generate register code into LogisticsCenter.class
  * @author billy.qi email: qiyilike@163.com
  */
@@ -49,12 +52,12 @@ class RegisterCodeGenerator {
                 ZipEntry zipEntry = new ZipEntry(entryName)
                 InputStream inputStream = file.getInputStream(jarEntry)
                 jarOutputStream.putNextEntry(zipEntry)
-                if (ScanSetting.GENERATE_TO_CLASS_FILE_NAME == entryName) {
+                if (ScanSetting.GENERATE_TO_CLASS_FILE_NAME == entryName) {// 找到 LogisticsCenter.class
 
                     Logger.i('Insert init code to class >> ' + entryName)
 
                     def bytes = referHackWhenInit(inputStream)
-                    jarOutputStream.write(bytes)
+                    jarOutputStream.write(bytes)//注入代码
                 } else {
                     jarOutputStream.write(IOUtils.toByteArray(inputStream))
                 }
@@ -96,7 +99,7 @@ class RegisterCodeGenerator {
                                   String signature, String[] exceptions) {
             MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions)
             //generate code into this method
-            if (name == ScanSetting.GENERATE_TO_METHOD_NAME) {
+            if (name == ScanSetting.GENERATE_TO_METHOD_NAME) {//当时 loadRouterMap 方法时
                 mv = new RouteMethodVisitor(Opcodes.ASM5, mv)
             }
             return mv
@@ -117,6 +120,7 @@ class RegisterCodeGenerator {
                     name = name.replaceAll("/", ".")
                     mv.visitLdcInsn(name)//类名
                     // generate invoke register method into LogisticsCenter.loadRouterMap()
+                    // 在 loadRouterMap 方法中调用 register 方法注册
                     mv.visitMethodInsn(Opcodes.INVOKESTATIC
                             , ScanSetting.GENERATE_TO_CLASS_NAME
                             , ScanSetting.REGISTER_METHOD_NAME

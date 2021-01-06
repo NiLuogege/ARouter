@@ -9,6 +9,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 /**
  * Simple version of AutoRegister plugin for ARouter
+ *
+ * 主要的功能是 扫描 所有 是 IRouteRoot，IInterceptorGroup，IProviderGroup 类型的文件（包含jar包中的）
+ * 并将其插入到 LogisticsCenter 的注册表中
+ *
  * @author billy.qi email: qiyilike@163.com
  * @since 17/12/06 15:35
  */

@@ -21,6 +21,8 @@ class ScanUtil {
      * scan jar file
      * @param jarFile All jar files that are compiled into apk
      * @param destFile dest file after this transform
+     *
+     * 将 com/alibaba/android/arouter/routes/ 包下的文件
      */
     static void scanJar(File jarFile, File destFile) {
         if (jarFile) {
@@ -76,6 +78,8 @@ class ScanUtil {
         void visit(int version, int access, String name, String signature,
                    String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces)
+
+            //将 IRouteRoot , IInterceptorGroup , IProviderGroup 三种类 整理到 对应的 ScanSetting 的 classList 中
             RegisterTransform.registerList.each { ext ->
                 if (ext.interfaceName && interfaces != null) {
                     interfaces.each { itName ->
