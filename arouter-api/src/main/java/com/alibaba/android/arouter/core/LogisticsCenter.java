@@ -78,10 +78,13 @@ public class LogisticsCenter {
                 Class<?> clazz = Class.forName(className);
                 Object obj = clazz.getConstructor().newInstance();
                 if (obj instanceof IRouteRoot) {
+                    //注册模块和 初始化类的映射关系
                     registerRouteRoot((IRouteRoot) obj);
                 } else if (obj instanceof IProviderGroup) {
+                    //注册服务 （provider）
                     registerProvider((IProviderGroup) obj);
                 } else if (obj instanceof IInterceptorGroup) {
+                    //注册拦截器
                     registerInterceptor((IInterceptorGroup) obj);
                 } else {
                     logger.info(TAG, "register failed, class name: " + className
@@ -277,14 +280,19 @@ public class LogisticsCenter {
                 postcard.withString(ARouter.RAW_URI, rawUri.toString());
             }
 
-            switch (routeMeta.getType()) {
+            switch (routeMeta.getType()) {//判断类型
+                //如果是 PROVIDER
                 case PROVIDER:  // if the route is provider, should find its instance
                     // Its provider, so it must implement IProvider
+                    //获取到 服务对应的 Class
                     Class<? extends IProvider> providerMeta = (Class<? extends IProvider>) routeMeta.getDestination();
+                    //缓存中获取
                     IProvider instance = Warehouse.providers.get(providerMeta);
+                    //缓存中获取，缓存中没有需要进行初始化
                     if (null == instance) { // There's no instance of this provider
                         IProvider provider;
                         try {
+                            //创建对象并初始化
                             provider = providerMeta.getConstructor().newInstance();
                             provider.init(mContext);
                             Warehouse.providers.put(providerMeta, provider);
@@ -294,6 +302,7 @@ public class LogisticsCenter {
                             throw new HandlerException("Init provider failed!");
                         }
                     }
+                    //设置给 postcard，并设置绿色通道
                     postcard.setProvider(instance);
                     postcard.greenChannel();    // Provider should skip all of interceptors
                     break;

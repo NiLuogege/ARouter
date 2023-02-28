@@ -292,6 +292,7 @@ final class _ARouter {
         postcard.setContext(null == context ? mContext : context);
 
         try {
+            //这里会初始化 相关类的一些东西，比如如果是服务则回去创建一个服务类保存到 postcard 中
             LogisticsCenter.completion(postcard);
         } catch (NoRouteFoundException ex) {
             logger.warning(Consts.TAG, ex.getMessage());
@@ -325,6 +326,7 @@ final class _ARouter {
             callback.onFound(postcard);
         }
 
+        //不是绿色通道的话才会 走拦截器，所有 获取服务，和 获取fragment 默认都不会走拦截器
         if (!postcard.isGreenChannel()) {   // It must be run in async thread, maybe interceptor cost too mush time made ANR.
             //这里会调用到 InterceptorServiceImpl.doInterceptions 方法 异步走过所有的拦截器然后通过 callback 将结果返回回来
             interceptorService.doInterceptions(postcard, new InterceptorCallback() {
@@ -365,7 +367,7 @@ final class _ARouter {
         final Context currentContext = postcard.getContext();
 
         switch (postcard.getType()) {
-            case ACTIVITY:
+            case ACTIVITY://Activity 的话执行跳转逻辑
                 // Build intent
                 final Intent intent = new Intent(currentContext, postcard.getDestination());
                 intent.putExtras(postcard.getExtras());
@@ -388,6 +390,7 @@ final class _ARouter {
                 }
 
                 // Navigation in main looper.
+                //这里切换到主线程 进行跳转
                 runInMainThread(new Runnable() {
                     @Override
                     public void run() {
@@ -396,11 +399,12 @@ final class _ARouter {
                 });
 
                 break;
-            case PROVIDER:
+            case PROVIDER://服务则直接返回对应的服务类，服务的创建是在 前面的 LogisticsCenter.completion(postcard) 就完成了
                 return postcard.getProvider();
             case BOARDCAST:
             case CONTENT_PROVIDER:
             case FRAGMENT:
+                //如果是 FRAGMENT 则直接反射创建一个并设置参数 返回，目前
                 Class<?> fragmentMeta = postcard.getDestination();
                 try {
                     Object instance = fragmentMeta.getConstructor().newInstance();

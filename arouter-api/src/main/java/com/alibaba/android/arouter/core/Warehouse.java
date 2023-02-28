@@ -24,7 +24,9 @@ class Warehouse {
     static Map<String, RouteMeta> routes = new HashMap<>(); //存放的是 路由和 routeMeta（目标的封装）的映射
 
     // Cache provider
+    //记录了所有 服务
     static Map<Class, IProvider> providers = new HashMap<>();
+    //记录了所有 服务和 他们具体描述的 关系
     static Map<String, RouteMeta> providersIndex = new HashMap<>();
 
     // 缓存了所有拦截器和优先级的对应关系，其中key是  优先级

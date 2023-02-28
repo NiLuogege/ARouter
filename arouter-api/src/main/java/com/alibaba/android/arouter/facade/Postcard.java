@@ -35,6 +35,7 @@ public final class Postcard extends RouteMeta {
     private int flags = 0;         // Flags of route
     private int timeout = 300;      // Navigation timeout, TimeUnit.Second
     private IProvider provider;     // It will be set value, if this postcard was provider.
+    //是否需要走绿色通道，也就是不走拦截器
     private boolean greenChannel;
     private SerializationService serializationService;
     private Context context;        // May application or activity, check instance type before use it.
