@@ -326,6 +326,7 @@ final class _ARouter {
         }
 
         if (!postcard.isGreenChannel()) {   // It must be run in async thread, maybe interceptor cost too mush time made ANR.
+            //这里会调用到 InterceptorServiceImpl.doInterceptions 方法 异步走过所有的拦截器然后通过 callback 将结果返回回来
             interceptorService.doInterceptions(postcard, new InterceptorCallback() {
                 /**
                  * Continue process
@@ -334,6 +335,7 @@ final class _ARouter {
                  */
                 @Override
                 public void onContinue(Postcard postcard) {
+                    //如果没被拦截则会 继续走跳转逻辑
                     _navigation(postcard, requestCode, callback);
                 }
 
@@ -344,6 +346,7 @@ final class _ARouter {
                  */
                 @Override
                 public void onInterrupt(Throwable exception) {
+                    //如果被拦截会走 callback
                     if (null != callback) {
                         callback.onInterrupt(postcard);
                     }

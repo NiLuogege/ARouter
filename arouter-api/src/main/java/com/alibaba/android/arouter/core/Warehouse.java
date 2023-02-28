@@ -27,8 +27,9 @@ class Warehouse {
     static Map<Class, IProvider> providers = new HashMap<>();
     static Map<String, RouteMeta> providersIndex = new HashMap<>();
 
-    // Cache interceptor
+    // 缓存了所有拦截器和优先级的对应关系，其中key是  优先级
     static Map<Integer, Class<? extends IInterceptor>> interceptorsIndex = new UniqueKeyTreeMap<>("More than one interceptors use same priority [%s]");
+    // 只缓存了所有拦截器
     static List<IInterceptor> interceptors = new ArrayList<>();
 
     static void clear() {

@@ -40,18 +40,27 @@ public class InterceptorServiceImpl implements InterceptorService {
                 return;
             }
 
+            //异步处理拦截器
             LogisticsCenter.executor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    //这里使用了 CancelableCountDownLatch
                     CancelableCountDownLatch interceptorCounter = new CancelableCountDownLatch(Warehouse.interceptors.size());
                     try {
+
+                        //这里会递归调用每一个拦截器
                         _execute(0, interceptorCounter, postcard);
+                        //这了等待所有拦截器处理完毕
                         interceptorCounter.await(postcard.getTimeout(), TimeUnit.SECONDS);
+                        //对不同的结果做处理
                         if (interceptorCounter.getCount() > 0) {    // Cancel the navigation this time, if it hasn't return anythings.
+                            //time out
                             callback.onInterrupt(new HandlerException("The interceptor processing timed out."));
                         } else if (null != postcard.getTag()) {    // Maybe some exception in the tag.
+                            //被拦截了
                             callback.onInterrupt((Throwable) postcard.getTag());
                         } else {
+                            //没被拦截
                             callback.onContinue(postcard);
                         }
                     } catch (Exception e) {
@@ -70,6 +79,8 @@ public class InterceptorServiceImpl implements InterceptorService {
      * @param index    current interceptor index
      * @param counter  interceptor counter
      * @param postcard routeMeta
+     *
+     * 可以看到这里是个递归调用，会调用每一个拦截器
      */
     private static void _execute(final int index, final CancelableCountDownLatch counter, final Postcard postcard) {
         if (index < Warehouse.interceptors.size()) {
@@ -105,11 +116,14 @@ public class InterceptorServiceImpl implements InterceptorService {
             @Override
             public void run() {
                 if (MapUtils.isNotEmpty(Warehouse.interceptorsIndex)) {
+                    //异步实例化所有 拦截器 并进行初始化，然后缓存到 Warehouse.interceptors中
                     for (Map.Entry<Integer, Class<? extends IInterceptor>> entry : Warehouse.interceptorsIndex.entrySet()) {
                         Class<? extends IInterceptor> interceptorClass = entry.getValue();
                         try {
+                            //实例化 切初始化
                             IInterceptor iInterceptor = interceptorClass.getConstructor().newInstance();
                             iInterceptor.init(context);
+                            //加入到 Warehouse.interceptors 中
                             Warehouse.interceptors.add(iInterceptor);
                         } catch (Exception ex) {
                             throw new HandlerException(TAG + "ARouter init interceptor error! name = [" + interceptorClass.getName() + "], reason = [" + ex.getMessage() + "]");

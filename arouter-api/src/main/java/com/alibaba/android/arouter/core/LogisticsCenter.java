@@ -111,6 +111,7 @@ public class LogisticsCenter {
     private static void registerInterceptor(IInterceptorGroup interceptorGroup) {
         markRegisteredByPlugin();
         if (interceptorGroup != null) {
+            //注册所有连接器和优先级对应关系到 Warehouse.interceptorsIndex 中
             interceptorGroup.loadInto(Warehouse.interceptorsIndex);
         }
     }
@@ -137,6 +138,8 @@ public class LogisticsCenter {
 
     /**
      * LogisticsCenter init, load all metas in memory. Demand initialization
+     *
+     * 加载所有元数据
      */
     public synchronized static void init(Context context, ThreadPoolExecutor tpe) throws HandlerException {
         mContext = context;
